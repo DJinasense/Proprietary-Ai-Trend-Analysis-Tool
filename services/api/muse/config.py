@@ -66,6 +66,21 @@ class Settings(BaseSettings):
 
     google_trends_enabled: bool = True
 
+    # Chart sources. Deezer and Apple Music need no credential at all — their
+    # endpoints are public — so they default on and are toggled by flag rather
+    # than by the presence of a key.
+    deezer_enabled: bool = True
+
+    apple_music_enabled: bool = True
+    # ISO country codes for Apple's per-storefront charts. More countries means
+    # more requests and a broader, less US-centric picture; the trade is one
+    # extra HTTP call per country per feed per poll.
+    apple_music_countries: str = "us,gb"
+
+    lastfm_api_key: str = ""
+    # Last.fm's geo charts key on full country *names*, not ISO codes.
+    lastfm_countries: str = "united states,united kingdom"
+
     ingest_interval_seconds: int = 900
 
     @property

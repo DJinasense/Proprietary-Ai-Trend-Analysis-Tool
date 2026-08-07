@@ -59,7 +59,13 @@ GENERIC_TERMS = {
 # Connectors whose queries are already scoped to music. A single-term match
 # from one of these is meaningfully more likely to be about music than the
 # same match from a general-purpose news/search feed.
-MUSIC_DOMAIN_CONNECTORS = {"reddit", "youtube", "bluesky"}
+#
+# The chart sources are the strongest members of this set: every row they emit
+# is a song by construction, so a term shared with a track is a term shared
+# with another song rather than with the internet at large.
+MUSIC_DOMAIN_CONNECTORS = {
+    "reddit", "youtube", "bluesky", "deezer", "apple_music", "lastfm",
+}
 
 
 @dataclass

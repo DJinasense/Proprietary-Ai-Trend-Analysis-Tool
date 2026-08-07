@@ -25,6 +25,11 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
+# httpx logs the full request URL at INFO. Several APIs here take their
+# credential as a query parameter (YouTube's `key=`, and Google Trends'
+# session tokens), so leaving this at INFO writes live secrets into the
+# container logs on every single poll.
+logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger("muse.worker")
 
 _shutdown = asyncio.Event()

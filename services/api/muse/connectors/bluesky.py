@@ -86,10 +86,7 @@ class BlueskyConnector(Connector):
     # ── Availability ──────────────────────────────────────────────────────
     @property
     def enabled(self) -> bool:
-        return bool(
-            settings.bluesky_identifier.strip()
-            and settings.bluesky_app_password.strip()
-        )
+        return bool(_identifier() and settings.bluesky_app_password.strip())
 
     def describe(self) -> dict[str, Any]:
         d = super().describe()
@@ -106,7 +103,7 @@ class BlueskyConnector(Connector):
             resp = await client.post(
                 f"{SERVICE}/com.atproto.server.createSession",
                 json={
-                    "identifier": settings.bluesky_identifier.strip(),
+                    "identifier": _identifier(),
                     "password": settings.bluesky_app_password.strip(),
                 },
                 timeout=25.0,
@@ -273,6 +270,18 @@ class BlueskyConnector(Connector):
                 "replies": replies,
             },
         )
+
+
+def _identifier() -> str:
+    """The configured handle, normalised for createSession.
+
+    Bluesky displays handles as ``@you.bsky.social`` everywhere in its own UI,
+    so that is what people paste into the .env. The AT Protocol identifier
+    field wants the bare handle or a DID — the leading ``@`` makes it an
+    invalid identifier and the login fails with a 400 that says nothing about
+    the cause. Strip it rather than making the user find that out.
+    """
+    return settings.bluesky_identifier.strip().lstrip("@")
 
 
 def _describe_error(exc: Exception) -> str:

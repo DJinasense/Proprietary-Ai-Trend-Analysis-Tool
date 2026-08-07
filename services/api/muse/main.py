@@ -19,6 +19,10 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)-8s %(name)s | %(message)s",
 )
+# See the note in muse/worker/scheduler.py — httpx's INFO-level request log
+# includes the full URL, and some connector credentials travel as query
+# parameters. Keep it at WARNING so keys stay out of the logs.
+logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger("muse")
 
 VERSION = "0.1.0"

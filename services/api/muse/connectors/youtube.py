@@ -64,7 +64,7 @@ class YouTubeConnector(Connector):
             resp.raise_for_status()
             items = resp.json().get("items", [])
         except Exception as exc:  # noqa: BLE001
-            logger.warning("YouTube chart fetch failed: %s", exc)
+            logger.warning("YouTube chart fetch failed: %s", _describe_error(exc))
             return []
 
         return [self._to_signal(item) for item in items if self._to_signal(item)]
@@ -92,7 +92,7 @@ class YouTubeConnector(Connector):
             resp.raise_for_status()
             items = resp.json().get("items", [])
         except Exception as exc:  # noqa: BLE001
-            logger.warning("YouTube search fetch failed: %s", exc)
+            logger.warning("YouTube search fetch failed: %s", _describe_error(exc))
             return []
 
         # search.list omits statistics, so hydrate view counts in one batched
@@ -118,7 +118,7 @@ class YouTubeConnector(Connector):
             stats_resp.raise_for_status()
             hydrated = stats_resp.json().get("items", [])
         except Exception as exc:  # noqa: BLE001
-            logger.warning("YouTube stats hydration failed: %s", exc)
+            logger.warning("YouTube stats hydration failed: %s", _describe_error(exc))
             return []
 
         out = []
@@ -173,3 +173,25 @@ class YouTubeConnector(Connector):
                 "comments": comments,
             },
         )
+
+
+def _describe_error(exc: Exception) -> str:
+    """Status code and Google's reason string only — never the URL.
+
+    The API key travels as a `key=` query parameter, so httpx's exception text
+    (which embeds the full request URL) would write the live credential into
+    the logs on every failure. Reason codes are what actually diagnose these:
+    `API_KEY_INVALID` means a wrong or malformed key, `keyInvalid` a key
+    restricted away from this API, `quotaExceeded` the 10,000 unit/day cap.
+    """
+    if isinstance(exc, httpx.HTTPStatusError):
+        reason = ""
+        try:
+            err = exc.response.json().get("error", {})
+            details = err.get("errors") or []
+            reason = (details[0].get("reason") if details else "") or err.get("status", "")
+        except Exception:  # noqa: BLE001
+            pass
+        code = exc.response.status_code
+        return f"HTTP {code}{f' ({reason})' if reason else ''}"
+    return f"{type(exc).__name__}: {exc}"
