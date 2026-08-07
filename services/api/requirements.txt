@@ -1,0 +1,27 @@
+# ── Web layer ────────────────────────────────────────────────────────────────
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# ── Config & validation ──────────────────────────────────────────────────────
+# NOTE: pydantic v2 moved BaseSettings out to pydantic-settings. The spec PDF's
+# sample code used the removed pydantic.BaseSettings import.
+pydantic==2.10.4
+pydantic-settings==2.7.0
+
+# ── Persistence ──────────────────────────────────────────────────────────────
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+pgvector==0.3.6
+
+# ── Audio analysis ───────────────────────────────────────────────────────────
+librosa==0.10.2.post1
+soundfile==0.12.1
+numpy==1.26.4
+scipy==1.14.1
+
+# ── Connectors ───────────────────────────────────────────────────────────────
+httpx==0.28.1
+
+# ── Narrative synthesis ──────────────────────────────────────────────────────
+anthropic==0.42.0

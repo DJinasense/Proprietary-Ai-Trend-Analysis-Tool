@@ -1,0 +1,576 @@
+/* MUSE design system.
+   Palette is taken directly from the spec: Deep Space Canvas as the ground,
+   Neon Pulse for signal, Warning Burn reserved exclusively for saturation.
+   Reserving the warning colour for one meaning is what keeps the Fatigue
+   Index legible at a glance instead of becoming decoration. */
+
+:root {
+  --canvas: #090a0f;
+  --surface: #10121a;
+  --surface-2: #161926;
+  --border: #232739;
+  --pulse: #00f5d4;
+  --pulse-dim: rgba(0, 245, 212, 0.12);
+  --burn: #ff5470;
+  --burn-dim: rgba(255, 84, 112, 0.12);
+  --amber: #ffb454;
+  --text: #eef0f6;
+  --muted: #8f94a8;
+  --radius: 14px;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--canvas);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-image:
+    radial-gradient(900px 500px at 12% -8%, rgba(0, 245, 212, 0.07), transparent 60%),
+    radial-gradient(700px 400px at 88% 0%, rgba(255, 84, 112, 0.05), transparent 60%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--pulse);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+
+.shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 20px 96px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.wordmark {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.wordmark h1 {
+  font-size: 26px;
+  letter-spacing: 0.16em;
+  margin: 0;
+  font-weight: 700;
+}
+.wordmark span {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 6px 0 24px;
+  max-width: 60ch;
+  line-height: 1.5;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card h2 {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 14px;
+  font-weight: 600;
+}
+
+.card.accent {
+  border-color: rgba(0, 245, 212, 0.35);
+  box-shadow: 0 0 0 1px rgba(0, 245, 212, 0.05), 0 18px 50px -30px rgba(0, 245, 212, 0.5);
+}
+
+/* ── Forms ───────────────────────────────────────────────────────────────── */
+
+label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 12px 0 6px;
+  letter-spacing: 0.04em;
+}
+
+input[type="text"],
+input[type="file"] {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--pulse);
+}
+
+input[type="file"]::file-selector-button {
+  background: var(--surface);
+  color: var(--pulse);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  margin-right: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn {
+  width: 100%;
+  margin-top: 18px;
+  background: var(--pulse);
+  color: #04120f;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.btn:disabled {
+  background: var(--surface-2);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+.btn-ghost:hover {
+  color: var(--text);
+  border-color: var(--pulse);
+}
+
+/* ── Status pills ────────────────────────────────────────────────────────── */
+
+.pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 11px;
+  color: var(--muted);
+  background: var(--surface);
+  white-space: nowrap;
+}
+.pill .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.pill.on {
+  color: var(--pulse);
+  border-color: rgba(0, 245, 212, 0.4);
+}
+.pill.on .dot {
+  background: var(--pulse);
+}
+.pill.warn {
+  color: var(--burn);
+  border-color: rgba(255, 84, 112, 0.4);
+}
+.pill.warn .dot {
+  background: var(--burn);
+}
+
+/* ── Narrative ───────────────────────────────────────────────────────────── */
+
+.headline {
+  font-size: 26px;
+  line-height: 1.28;
+  margin: 0 0 14px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.narrative-body {
+  font-size: 16px;
+  line-height: 1.65;
+  color: #d5d9e6;
+  margin: 0 0 18px;
+}
+
+.insight {
+  border-left: 3px solid var(--pulse);
+  background: var(--pulse-dim);
+  padding: 14px 16px;
+  border-radius: 0 10px 10px 0;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.insight strong {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pulse);
+  margin-bottom: 6px;
+}
+
+.gen-mode {
+  margin-top: 16px;
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+/* ── Saturation gauge ────────────────────────────────────────────────────── */
+
+.gauge-row {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.gauge-num {
+  font-size: 46px;
+  font-weight: 700;
+  font-family: var(--mono);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.gauge-meta {
+  flex: 1 1 240px;
+  min-width: 220px;
+}
+
+.track-bar {
+  height: 9px;
+  background: var(--surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 10px 0;
+  position: relative;
+}
+.track-bar > i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 500ms ease;
+}
+
+.verdict {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.explain {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  margin-top: 8px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+.stat {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.stat b {
+  display: block;
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 600;
+}
+.stat span {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── Drivers ─────────────────────────────────────────────────────────────── */
+
+.driver {
+  display: flex;
+  gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border);
+}
+.driver:last-child {
+  border-bottom: none;
+}
+
+.driver-platform {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 7px;
+  height: fit-content;
+  white-space: nowrap;
+}
+
+.driver-body {
+  flex: 1;
+  min-width: 0;
+}
+.driver-body .event {
+  font-size: 14px;
+  line-height: 1.45;
+}
+.driver-body .sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.surge {
+  color: var(--pulse);
+  font-family: var(--mono);
+  font-weight: 600;
+}
+
+/* ── Acoustic table ──────────────────────────────────────────────────────── */
+
+.feat-group + .feat-group {
+  margin-top: 20px;
+}
+
+.feat-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.feat-note {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 12px;
+  opacity: 0.85;
+}
+
+.feat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+.feat {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.feat b {
+  display: block;
+  font-family: var(--mono);
+  font-size: 15px;
+}
+.feat span {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.estimated b {
+  color: var(--amber);
+}
+
+/* ── Track rail ──────────────────────────────────────────────────────────── */
+
+.rail-item {
+  width: 100%;
+  text-align: left;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 13px;
+  color: var(--text);
+  margin-bottom: 8px;
+  display: block;
+}
+.rail-item:hover {
+  border-color: var(--pulse);
+}
+.rail-item.active {
+  border-color: var(--pulse);
+  background: var(--pulse-dim);
+}
+.rail-item .t {
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rail-item .m {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* ── Misc ────────────────────────────────────────────────────────────────── */
+
+.banner {
+  border: 1px solid rgba(255, 180, 84, 0.35);
+  background: rgba(255, 180, 84, 0.08);
+  color: #ffd7a0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  margin-bottom: 20px;
+}
+
+.error {
+  border: 1px solid rgba(255, 84, 112, 0.4);
+  background: var(--burn-dim);
+  color: #ffc2cc;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 14px;
+}
+
+/* A duplicate upload is not a failure — the user gets a real analysis back, just
+   not a new one. Styled as information so it does not read as an error. */
+.notice {
+  border: 1px solid rgba(122, 162, 255, 0.35);
+  background: rgba(122, 162, 255, 0.08);
+  color: #cfdcff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 14px;
+}
+
+.empty {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.progress {
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--pulse);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--pulse);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+  flex: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2.5s;
+  }
+  .track-bar > i {
+    transition: none;
+  }
+}

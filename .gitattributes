@@ -1,0 +1,12 @@
+# Normalise line endings in the repo to LF regardless of the checkout platform.
+# Without this, a Windows checkout commits CRLF and every file looks rewritten
+# the first time the project is touched on Linux (or inside the containers).
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.pdf binary
+*.docx binary
+*.wav binary
+*.mp3 binary
+*.flac binary
