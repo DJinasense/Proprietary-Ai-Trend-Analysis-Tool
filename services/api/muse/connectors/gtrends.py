@@ -19,6 +19,7 @@ import httpx
 
 from muse.config import settings
 from muse.connectors.base import Connector, RawSignal
+from muse.connectors.scenes import scene_for
 from muse.connectors.util import text_keywords
 
 logger = logging.getLogger(__name__)
@@ -106,6 +107,11 @@ class GoogleTrendsConnector(Connector):
             f"?q={quote_plus(title)}&geo={geo}"
         )
 
+        # This feed is general trending, not a music query — there is nothing to
+        # point at the AI scene. But when "Suno" or an AI-music story breaks
+        # nationally it lands here, and the term plus its news headlines say so.
+        scene = scene_for(title, *news_titles)
+
         return RawSignal(
             platform=self.platform,
             target_entity=f"{title} ({geo})",
@@ -113,6 +119,12 @@ class GoogleTrendsConnector(Connector):
             engagement_count=traffic,
             context_anchor_url=anchor,
             associated_keywords=text_keywords(title, *news_titles),
+            scene=scene,
             observed_at=datetime.now(timezone.utc),
-            raw={"geo": geo, "approx_traffic": traffic, "news": news_titles[:3]},
+            raw={
+                "geo": geo,
+                "scene": scene,
+                "approx_traffic": traffic,
+                "news": news_titles[:3],
+            },
         )

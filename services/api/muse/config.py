@@ -83,6 +83,22 @@ class Settings(BaseSettings):
 
     ingest_interval_seconds: int = 900
 
+    # ── Scenes ────────────────────────────────────────────────────────────
+    # AI-generated music and human-made music are tracked as separate scenes,
+    # not as one filter over the other. Both default on: turning one off narrows
+    # what MUSE collects, it does not redirect that effort to the other scene.
+    human_scene_enabled: bool = True
+    ai_scene_enabled: bool = True
+
+    # YouTube charges 100 quota units for a search.list call against 1 for
+    # videos.list, on a 10,000/day cap. At the 900s ingest interval, searching
+    # every cycle would cost 9,600 units/day for the search passes alone —
+    # before the AI scene adds a second one. This throttles searches to their
+    # own interval so the charts keep polling at full rate and the searches
+    # sample less often. At 3600s that is 24 runs/day/pass — two passes, chart
+    # polls and hydration together come to roughly 4,950 of the 10,000 units.
+    youtube_search_min_interval_seconds: int = 3600
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

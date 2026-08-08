@@ -39,7 +39,9 @@ from typing import Any
 import httpx
 
 from muse.config import settings
+from muse.connectors import scenes
 from muse.connectors.base import Connector, RawSignal
+from muse.connectors.scenes import scene_for
 from muse.connectors.util import hashtags, text_keywords
 
 logger = logging.getLogger(__name__)
@@ -63,6 +65,21 @@ QUERIES = [
     "indie release",
     "song of the day",
 ]
+
+
+def _query_plan() -> list[tuple[str, str]]:
+    """The searches to run this cycle, each paired with the scene it samples.
+
+    Both scenes are opt-out rather than either/or: turning one off narrows what
+    MUSE sees, it does not redirect the budget to the other. Each Bluesky search
+    is one cheap request, so running both is the normal configuration.
+    """
+    plan: list[tuple[str, str]] = []
+    if settings.human_scene_enabled:
+        plan += [(q, scenes.HUMAN) for q in QUERIES]
+    if settings.ai_scene_enabled:
+        plan += [(q, scenes.AI) for q in scenes.AI_BLUESKY_QUERIES]
+    return plan
 
 
 @dataclass
@@ -179,7 +196,7 @@ class BlueskyConnector(Connector):
                 logger.warning("Bluesky connector has no session; skipping this cycle")
                 return []
 
-            for query in QUERIES:
+            for query, scene in _query_plan():
                 posts = await self._search(client, query, session)
                 if posts is None:
                     # 401 on a token we believed was good — log in again once
@@ -191,11 +208,18 @@ class BlueskyConnector(Connector):
                     posts = await self._search(client, query, session) or []
 
                 for post in posts:
-                    sig = self._to_signal(post, query)
+                    sig = self._to_signal(post, query, scene)
                     if sig:
                         signals.append(sig)
 
-        logger.info("Bluesky connector produced %d signals", len(signals))
+        by_scene: dict[str, int] = {}
+        for s in signals:
+            by_scene[s.scene] = by_scene.get(s.scene, 0) + 1
+        logger.info(
+            "Bluesky connector produced %d signals (%s)",
+            len(signals),
+            ", ".join(f"{k}={v}" for k, v in sorted(by_scene.items())) or "none",
+        )
         return signals
 
     async def _search(
@@ -217,7 +241,7 @@ class BlueskyConnector(Connector):
             logger.warning("Bluesky search failed for %r: %s", query, _describe_error(exc))
             return []
 
-    def _to_signal(self, post: dict, query: str) -> RawSignal | None:
+    def _to_signal(self, post: dict, query: str, scene: str) -> RawSignal | None:
         record = post.get("record", {})
         text_body = (record.get("text") or "").strip()
         uri = post.get("uri") or ""
@@ -254,6 +278,11 @@ class BlueskyConnector(Connector):
         keywords = text_keywords(text_body, query)
         keywords.extend(hashtags(text_body))
 
+        # An AI query settles the scene; a human query still yields to the post
+        # naming an AI tool outright, which is how "made with Suno" posts get
+        # counted even when they turn up under "new single".
+        scene = scene_for(text_body, default=scene)
+
         return RawSignal(
             platform=self.platform,
             target_entity=f"@{handle}: {text_body[:70]}",
@@ -261,10 +290,12 @@ class BlueskyConnector(Connector):
             engagement_count=engagement,
             context_anchor_url=url,
             associated_keywords=list(dict.fromkeys(keywords)),
+            scene=scene,
             observed_at=observed,
             raw={
                 "handle": handle,
                 "query": query,
+                "scene": scene,
                 "likes": likes,
                 "reposts": reposts,
                 "replies": replies,

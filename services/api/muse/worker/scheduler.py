@@ -19,6 +19,7 @@ from sqlalchemy import text
 
 from muse.config import settings
 from muse.connectors import enabled_connectors, persist_signals
+from muse.connectors.scenes import enabled_scenes
 from muse.db import SessionLocal, run_migrations
 
 logging.basicConfig(
@@ -58,6 +59,14 @@ async def run_cycle() -> dict[str, int]:
     """One full pass over every enabled connector."""
     results: dict[str, int] = {}
     connectors = enabled_connectors()
+    scenes = enabled_scenes()
+
+    if not scenes:
+        logger.warning(
+            "Both scenes are disabled — nothing to collect. Set "
+            "MUSE_HUMAN_SCENE_ENABLED or MUSE_AI_SCENE_ENABLED back to true."
+        )
+        return results
 
     if not connectors:
         logger.warning(
@@ -69,6 +78,15 @@ async def run_cycle() -> dict[str, int]:
     for connector in connectors:
         try:
             signals = await connector.fetch()
+
+            kept = [s for s in signals if s.scene in scenes]
+            if len(kept) != len(signals):
+                logger.info(
+                    "%s: dropped %d signals from disabled scenes",
+                    connector.name, len(signals) - len(kept),
+                )
+            signals = kept
+
             async with SessionLocal() as session:
                 written = await persist_signals(session, connector, signals)
             results[connector.name] = written

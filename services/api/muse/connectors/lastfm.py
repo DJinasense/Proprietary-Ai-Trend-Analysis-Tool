@@ -49,7 +49,8 @@ class LastFmConnector(Connector):
 
     @property
     def enabled(self) -> bool:
-        return bool(settings.lastfm_api_key.strip())
+        # Human scene only — see the note in deezer.py.
+        return bool(settings.lastfm_api_key.strip()) and settings.human_scene_enabled
 
     async def fetch(self) -> list[RawSignal]:
         if not self.enabled:

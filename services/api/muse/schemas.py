@@ -133,6 +133,14 @@ class SignalOut(BaseModel):
     velocity_spike_pct: float
     engagement_count: int
     context_anchor_url: str
+    scene: str = Field(
+        default="human",
+        description=(
+            "'human' or 'ai'. 'ai' means the signal came from an AI-music "
+            "community or names an AI tool outright — not that MUSE detected "
+            "machine generation, which no source here exposes."
+        ),
+    )
     observed_at: datetime
 
 
@@ -142,5 +150,9 @@ class CorpusStats(BaseModel):
     social_signals: int
     signals_last_24h: int
     platforms: list[dict[str, Any]]
+    scenes: list[dict[str, Any]] = Field(
+        default_factory=list,
+        description="Signal counts per scene, so the split is visible up front.",
+    )
     fatigue_ready: bool
     fatigue_ready_message: str

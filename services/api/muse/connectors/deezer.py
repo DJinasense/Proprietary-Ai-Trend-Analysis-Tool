@@ -49,7 +49,11 @@ class DeezerConnector(Connector):
 
     @property
     def enabled(self) -> bool:
-        return settings.deezer_enabled
+        # Chart sources sample the human scene only — nothing in a Deezer chart
+        # entry says whether a track was machine-made, so this connector has no
+        # AI reading to offer and is skipped outright when the human scene is
+        # off, rather than polling and having its output discarded.
+        return settings.deezer_enabled and settings.human_scene_enabled
 
     async def fetch(self) -> list[RawSignal]:
         if not self.enabled:

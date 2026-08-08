@@ -16,7 +16,9 @@ from datetime import datetime, timezone
 import httpx
 
 from muse.config import settings
+from muse.connectors import scenes
 from muse.connectors.base import Connector, RawSignal
+from muse.connectors.scenes import scene_for
 from muse.connectors.util import text_keywords
 
 logger = logging.getLogger(__name__)
@@ -29,6 +31,21 @@ SUBREDDITS = [
 
 TOKEN_URL = "https://www.reddit.com/api/v1/access_token"
 API_BASE = "https://oauth.reddit.com"
+
+
+def _subreddit_plan() -> list[tuple[str, str]]:
+    """Subreddits to poll, each with the scene it belongs to.
+
+    Subreddit membership is the strongest scene signal MUSE has: a post in
+    r/SunoAI is AI music because of where it was posted, not because of what it
+    says. That is why these are tagged at the source rather than by text match.
+    """
+    plan: list[tuple[str, str]] = []
+    if settings.human_scene_enabled:
+        plan += [(s, scenes.HUMAN) for s in SUBREDDITS]
+    if settings.ai_scene_enabled:
+        plan += [(s, scenes.AI) for s in scenes.AI_SUBREDDITS]
+    return plan
 
 
 class RedditConnector(Connector):
@@ -75,7 +92,7 @@ class RedditConnector(Connector):
                 "User-Agent": settings.reddit_user_agent,
             }
 
-            for sub in SUBREDDITS:
+            for sub, scene in _subreddit_plan():
                 try:
                     resp = await client.get(
                         f"{API_BASE}/r/{sub}/rising",
@@ -102,6 +119,10 @@ class RedditConnector(Connector):
                         continue
 
                     permalink = d.get("permalink") or ""
+                    flair = d.get("link_flair_text") or ""
+                    # A general music sub still carries the occasional "made
+                    # this with Suno" post; an AI sub stays AI regardless.
+                    post_scene = scene_for(title, flair, default=scene)
                     signals.append(
                         RawSignal(
                             platform=self.platform,
@@ -110,9 +131,8 @@ class RedditConnector(Connector):
                             engagement_count=int(d.get("score", 0))
                             + int(d.get("num_comments", 0)),
                             context_anchor_url=f"https://reddit.com{permalink}",
-                            associated_keywords=text_keywords(
-                                title, d.get("link_flair_text") or "", sub
-                            ),
+                            associated_keywords=text_keywords(title, flair, sub),
+                            scene=post_scene,
                             observed_at=datetime.fromtimestamp(
                                 d.get("created_utc", 0) or 0, tz=timezone.utc
                             )
@@ -120,6 +140,7 @@ class RedditConnector(Connector):
                             else datetime.now(timezone.utc),
                             raw={
                                 "subreddit": sub,
+                                "scene": post_scene,
                                 "score": d.get("score"),
                                 "num_comments": d.get("num_comments"),
                                 "upvote_ratio": d.get("upvote_ratio"),
@@ -127,5 +148,12 @@ class RedditConnector(Connector):
                         )
                     )
 
-        logger.info("Reddit connector produced %d signals", len(signals))
+        by_scene: dict[str, int] = {}
+        for s in signals:
+            by_scene[s.scene] = by_scene.get(s.scene, 0) + 1
+        logger.info(
+            "Reddit connector produced %d signals (%s)",
+            len(signals),
+            ", ".join(f"{k}={v}" for k, v in sorted(by_scene.items())) or "none",
+        )
         return signals

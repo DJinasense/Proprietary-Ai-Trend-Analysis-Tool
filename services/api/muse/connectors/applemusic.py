@@ -48,7 +48,9 @@ class AppleMusicConnector(Connector):
 
     @property
     def enabled(self) -> bool:
-        return settings.apple_music_enabled
+        # Human scene only — see the note in deezer.py; Apple's feeds expose no
+        # provenance either.
+        return settings.apple_music_enabled and settings.human_scene_enabled
 
     async def fetch(self) -> list[RawSignal]:
         if not self.enabled:
