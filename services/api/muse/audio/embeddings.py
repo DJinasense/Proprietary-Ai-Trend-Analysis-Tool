@@ -121,6 +121,7 @@ class ClapBackend:
     def __init__(self) -> None:
         self._model = None
         self._processor = None
+        self._device = None
 
     def _ensure_loaded(self) -> None:
         if self._model is not None:
@@ -128,8 +129,16 @@ class ClapBackend:
         import torch  # noqa: F401  (imported for side effects / availability check)
         from transformers import ClapModel, ClapProcessor
 
-        logger.info("Loading CLAP model %s (first run downloads ~600MB)", self.MODEL_ID)
-        self._model = ClapModel.from_pretrained(self.MODEL_ID)
+        # from_pretrained defaults to CPU regardless of what's available; a
+        # GPU sitting idle while every embed call runs on CPU is not opt-in
+        # by anyone's definition.
+        self._device = "cuda" if torch.cuda.is_available() else "cpu"
+        logger.info(
+            "Loading CLAP model %s on %s (first run downloads ~600MB)",
+            self.MODEL_ID,
+            self._device,
+        )
+        self._model = ClapModel.from_pretrained(self.MODEL_ID).to(self._device)
         self._processor = ClapProcessor.from_pretrained(self.MODEL_ID)
         self._model.eval()
 
@@ -141,6 +150,7 @@ class ClapBackend:
         # CLAP is trained at 48kHz; resample rather than feed it our 22050.
         y, _ = librosa.load(audio_path, sr=48000, mono=True, duration=30.0)
         inputs = self._processor(audios=y, sampling_rate=48000, return_tensors="pt")
+        inputs = {k: v.to(self._device) for k, v in inputs.items()}
         with torch.no_grad():
             features = self._model.get_audio_features(**inputs)
         return features[0].cpu().numpy().astype(np.float32)

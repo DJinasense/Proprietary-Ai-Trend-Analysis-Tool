@@ -20,6 +20,12 @@ soundfile==0.12.1
 numpy==1.26.4
 scipy==1.14.1
 
+# ── CLAP embedding backend (MUSE_EMBEDDING_BACKEND=clap) ──────────────────────
+# PyPI's linux wheel bundles its own CUDA runtime, so this picks up the GPU
+# automatically when the container has one reserved (see docker-compose.yml).
+torch==2.5.1
+transformers==4.47.0
+
 # ── Connectors ───────────────────────────────────────────────────────────────
 httpx==0.28.1
 
