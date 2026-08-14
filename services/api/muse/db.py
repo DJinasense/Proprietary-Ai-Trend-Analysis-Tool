@@ -21,6 +21,13 @@ engine = create_async_engine(
     pool_pre_ping=True,
     pool_size=10,
     max_overflow=20,
+    # Supabase's transaction-mode pooler hands out a different backend
+    # connection per transaction, so asyncpg's server-side prepared
+    # statements (named and cached per logical connection) collide with
+    # whatever the previous transaction on that backend already prepared —
+    # DuplicatePreparedStatementError. Disabling the cache falls back to
+    # unnamed statements, which transaction pooling actually supports.
+    connect_args={"statement_cache_size": 0},
 )
 
 SessionLocal = async_sessionmaker(

@@ -1,8 +1,12 @@
 name: muse
 
 services:
+  # Local Postgres — opt-in only (`docker compose --profile local up`).
+  # Production points MUSE_DATABASE_URL at Supabase instead; nothing depends
+  # on this service by default, so a plain `up -d` never starts it.
   db:
     image: pgvector/pgvector:pg16
+    profiles: ["local"]
     environment:
       POSTGRES_USER: muse
       POSTGRES_PASSWORD: muse
@@ -23,16 +27,11 @@ services:
       context: ./services/api
     env_file:
       - .env
-    environment:
-      MUSE_DATABASE_URL: postgresql+asyncpg://muse:muse@db:5432/muse
     ports:
       - "8000:8000"
     volumes:
       - ./services/api:/app
       - muse_media:/data/media
-    depends_on:
-      db:
-        condition: service_healthy
     command: uvicorn muse.main:app --host 0.0.0.0 --port 8000 --reload
     deploy:
       resources:
@@ -47,15 +46,24 @@ services:
       context: ./services/api
     env_file:
       - .env
-    environment:
-      MUSE_DATABASE_URL: postgresql+asyncpg://muse:muse@db:5432/muse
     volumes:
       - ./services/api:/app
       - muse_media:/data/media
-    depends_on:
-      db:
-        condition: service_healthy
     command: python -m muse.worker.scheduler
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        # Empty = relative /api/... calls, proxied server-side by the
+        # rewrite in next.config.mjs. Works regardless of which public
+        # hostname ends up serving this — no per-domain rebuild needed.
+        NEXT_PUBLIC_API_BASE: ""
+        MUSE_API_INTERNAL_URL: http://api:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
 
 volumes:
   muse_pgdata:

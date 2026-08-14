@@ -7,8 +7,14 @@ import type {
   UploadResponse,
 } from "./types";
 
+// `?.replace(...) || default` would treat an explicit "" (same-origin,
+// relative /api/... calls, proxied via next.config.mjs rewrites) as unset
+// and silently override it — falsy, not just missing. Check presence
+// instead of truthiness so "" means what it says.
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, "") || "http://localhost:8000";
+  process.env.NEXT_PUBLIC_API_BASE !== undefined
+    ? process.env.NEXT_PUBLIC_API_BASE.replace(/\/$/, "")
+    : "http://localhost:8000";
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, { cache: "no-store" });
