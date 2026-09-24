@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: muse-api
+    env: python
+    rootDir: services/api
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn muse.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: MUSE_EMBEDDING_BACKEND
+        value: stats
+      - key: MUSE_DATABASE_URL
+        sync: false
+      - key: MUSE_ANTHROPIC_API_KEY
+        sync: false
+      - key: MUSE_CORS_ORIGINS
+        value: "*"
+
+  - type: worker
+    name: muse-worker
+    env: python
+    rootDir: services/api
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m muse.worker.scheduler
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: MUSE_EMBEDDING_BACKEND
+        value: stats
+      - key: MUSE_DATABASE_URL
+        sync: false
+      - key: MUSE_ANTHROPIC_API_KEY
+        sync: false
