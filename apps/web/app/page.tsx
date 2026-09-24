@@ -89,8 +89,7 @@ export default function Page() {
 
       {loadError && (
         <div className="error">
-          {loadError} — is the API running? Start it with{" "}
-          <code>docker compose up</code> from the project root.
+          {loadError} — unable to connect to the MUSE API. Please verify backend status.
         </div>
       )}
 
