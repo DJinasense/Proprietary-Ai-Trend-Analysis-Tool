@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY || "";
-const stripe = stripeSecret ? new Stripe(stripeSecret, { apiVersion: "2026-08-01" as any }) : null;
+const stripe = stripeSecret ? new Stripe(stripeSecret) : null;
 
 export async function POST(req: Request) {
   try {
@@ -11,7 +11,6 @@ export async function POST(req: Request) {
     const paymentLink = process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK || "";
     const origin = req.headers.get("origin") || "https://muse.dgrvip.net";
 
-    // If Stripe secret key is not set in env but a direct Payment Link is provided
     if (!stripe) {
       if (paymentLink) {
         return NextResponse.json({ url: paymentLink });
@@ -19,13 +18,13 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error:
-            "Stripe Secret Key (STRIPE_SECRET_KEY) is not configured in environment settings. Please add your Stripe API keys to Vercel.",
+            "Stripe Secret Key (STRIPE_SECRET_KEY) is not configured in environment settings.",
         },
         { status: 400 }
       );
     }
 
-    // When product ID is specified, do NOT pass product_data in price_data to avoid Stripe API schema error
+    // When product ID is specified, pass product ID in price_data
     const lineItem: Stripe.Checkout.SessionCreateParams.LineItem = productId
       ? {
           price_data: {
