@@ -46,6 +46,17 @@ export default function Page() {
     });
   }, [refresh]);
 
+  // Auto-retry background ping if API is cold-starting or asleep
+  useEffect(() => {
+    if (health) return;
+    const interval = setInterval(() => {
+      refresh().then((t) => {
+        if (t.length > 0) setSelected((s) => s ?? t[0].track_id);
+      });
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [health, refresh]);
+
   useEffect(() => {
     if (!selected) {
       setInsight(null);
