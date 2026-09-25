@@ -91,40 +91,76 @@ export default function Page() {
       <ThreeBackground />
 
       <main className="shell">
-        {/* Top Header Navigation with True Header Image */}
-        <header className="topbar" style={{ marginBottom: "16px" }}>
-          <div style={{ flex: "1 1 300px", maxWidth: "480px" }}>
+        {/* Full-Width Prominent Header Banner */}
+        <header style={{ marginBottom: "20px" }}>
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              borderRadius: "16px",
+              overflow: "hidden",
+              border: "1px solid rgba(0, 245, 212, 0.35)",
+              boxShadow: "0 0 35px rgba(0, 245, 212, 0.25), 0 10px 40px rgba(0, 0, 0, 0.7)",
+              background: "radial-gradient(ellipse at center, rgba(16, 24, 38, 0.9) 0%, rgba(9, 10, 15, 0.95) 100%)",
+            }}
+          >
             <img
               src="/logo.jpg"
               alt="MUSE - Music Utility & Structural Intelligence Engine"
               style={{
                 width: "100%",
                 height: "auto",
-                maxHeight: "90px",
-                objectFit: "contain",
-                borderRadius: "12px",
-                boxShadow: "0 0 24px rgba(0, 245, 212, 0.4)",
-                border: "1px solid rgba(0, 245, 212, 0.3)",
+                maxHeight: "220px",
+                minHeight: "120px",
+                objectFit: "cover",
+                objectPosition: "center",
                 display: "block",
+              }}
+            />
+
+            {/* Gradient Overlay for visual polish */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "linear-gradient(180deg, rgba(9, 10, 15, 0) 60%, rgba(9, 10, 15, 0.8) 100%)",
+                pointerEvents: "none",
               }}
             />
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+          {/* Action & Status Controls Row directly below header banner */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "16px",
+              flexWrap: "wrap",
+              marginTop: "14px",
+              padding: "10px 16px",
+              background: "rgba(16, 18, 26, 0.65)",
+              backdropFilter: "blur(12px)",
+              borderRadius: "12px",
+              border: "1px solid rgba(0, 245, 212, 0.15)",
+            }}
+          >
             <StatusBar health={health} />
+
             <button
               className="btn"
               onClick={() => setShowStripeModal(true)}
               style={{
                 marginTop: 0,
                 width: "auto",
-                padding: "10px 18px",
+                padding: "10px 22px",
                 fontSize: "13px",
                 background: "linear-gradient(135deg, #00f5d4 0%, #3b82f6 100%)",
-                boxShadow: "0 0 20px rgba(0, 245, 212, 0.35)",
+                boxShadow: "0 0 20px rgba(0, 245, 212, 0.4)",
                 color: "#04120f",
                 fontWeight: 800,
                 borderRadius: "8px",
+                letterSpacing: "0.02em",
               }}
             >
               ★ Upgrade to Pro ($13.99/mo)
