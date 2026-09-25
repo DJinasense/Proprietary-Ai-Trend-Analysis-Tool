@@ -91,27 +91,23 @@ export default function Page() {
       <ThreeBackground />
 
       <main className="shell">
-        {/* Top Header Navigation & Logo Banner */}
-        <header className="topbar">
-          <div className="wordmark" style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        {/* Top Header Navigation with True Header Image */}
+        <header className="topbar" style={{ marginBottom: "16px" }}>
+          <div style={{ flex: "1 1 300px", maxWidth: "480px" }}>
             <img
               src="/logo.jpg"
-              alt="MUSE Logo"
+              alt="MUSE - Music Utility & Structural Intelligence Engine"
               style={{
-                height: "48px",
-                borderRadius: "8px",
-                boxShadow: "0 0 16px rgba(0, 245, 212, 0.4)",
+                width: "100%",
+                height: "auto",
+                maxHeight: "90px",
+                objectFit: "contain",
+                borderRadius: "12px",
+                boxShadow: "0 0 24px rgba(0, 245, 212, 0.4)",
                 border: "1px solid rgba(0, 245, 212, 0.3)",
+                display: "block",
               }}
             />
-            <div>
-              <h1 style={{ fontSize: "24px", margin: 0, letterSpacing: "0.15em", color: "#fff" }}>
-                MUSE
-              </h1>
-              <span style={{ fontSize: "11px", color: "var(--pulse)", letterSpacing: "0.08em" }}>
-                MUSIC UTILITY &amp; STRUCTURAL INTELLIGENCE ENGINE
-              </span>
-            </div>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
@@ -122,12 +118,13 @@ export default function Page() {
               style={{
                 marginTop: 0,
                 width: "auto",
-                padding: "8px 16px",
-                fontSize: "12px",
+                padding: "10px 18px",
+                fontSize: "13px",
                 background: "linear-gradient(135deg, #00f5d4 0%, #3b82f6 100%)",
-                boxShadow: "0 0 16px rgba(0, 245, 212, 0.3)",
+                boxShadow: "0 0 20px rgba(0, 245, 212, 0.35)",
                 color: "#04120f",
                 fontWeight: 800,
+                borderRadius: "8px",
               }}
             >
               ★ Upgrade to Pro ($13.99/mo)
@@ -143,8 +140,8 @@ export default function Page() {
             alignItems: "center",
             gap: "16px",
             flexWrap: "wrap",
-            margin: "12px 0 24px",
-            padding: "12px 18px",
+            margin: "0 0 24px",
+            padding: "14px 20px",
             background: "rgba(16, 18, 26, 0.75)",
             backdropFilter: "blur(12px)",
             borderRadius: "12px",
@@ -163,9 +160,10 @@ export default function Page() {
               background: "rgba(0, 245, 212, 0.08)",
               border: "1px solid rgba(0, 245, 212, 0.3)",
               color: "var(--pulse)",
-              padding: "4px 10px",
+              padding: "5px 12px",
               borderRadius: "6px",
               whiteSpace: "nowrap",
+              fontWeight: 600,
             }}
           >
             FREE PLAN: 15–30s Sample Hooks

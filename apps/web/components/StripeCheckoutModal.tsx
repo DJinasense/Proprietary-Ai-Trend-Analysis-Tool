@@ -10,11 +10,13 @@ export default function StripeCheckoutModal({
   onClose: () => void;
 }) {
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   async function handleCheckout() {
     setLoading(true);
+    setErrorMessage(null);
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -22,14 +24,14 @@ export default function StripeCheckoutModal({
         body: JSON.stringify({ productId: "prod_VKJhWwKnR7dstx" }),
       });
       const data = await res.json();
-      if (data.url) {
+      if (res.ok && data.url) {
         window.location.href = data.url;
       } else {
-        alert(data.error || "Stripe checkout session initialized.");
+        setErrorMessage(data.error || "Stripe checkout session could not be created.");
         setLoading(false);
       }
-    } catch {
-      alert("Redirecting to Stripe checkout portal...");
+    } catch (err: any) {
+      setErrorMessage(err.message || "Failed to reach Stripe checkout service.");
       setLoading(false);
     }
   }
@@ -91,6 +93,22 @@ export default function StripeCheckoutModal({
           Test 15–30 sec hook snippets for free. Upgrade to Pro to analyze full-length master tracks (WAV/FLAC), unlock deep market saturation gauges, and access full cross-platform social driver correlations.
         </p>
 
+        {errorMessage && (
+          <div
+            style={{
+              padding: "12px 16px",
+              borderRadius: "8px",
+              background: "rgba(239, 68, 68, 0.15)",
+              border: "1px solid rgba(239, 68, 68, 0.4)",
+              color: "#fca5a5",
+              fontSize: "13px",
+              marginBottom: "20px",
+            }}
+          >
+            ⚠️ {errorMessage}
+          </div>
+        )}
+
         <div style={{ background: "var(--surface-2)", padding: "20px", borderRadius: "12px", marginBottom: "24px", border: "1px solid var(--border)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "12px" }}>
             <span style={{ fontWeight: 700, fontSize: "18px" }}>MUSE Pro Membership</span>
@@ -119,6 +137,7 @@ export default function StripeCheckoutModal({
             alignItems: "center",
             justifyContent: "center",
             gap: "8px",
+            width: "100%",
           }}
         >
           {loading ? "Connecting to Stripe…" : "Subscribe Now — $13.99/mo"}
